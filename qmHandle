@@ -78,8 +78,10 @@ foreach my $arg (@ARGV) {
       $arg =~ /^-d(.+)/ and do { push @actions, [\&DelMsg, $1]; $dactions++; last SWITCH; };
       $arg =~ /^-S(.+)/ and do { push @actions, [\&DelMsgSubj, $1]; $dactions++; last SWITCH; };
       $arg =~ /^-h(.+)/ and do { push @actions, [\&DelMsgHeaderR, 'I', $1]; $dactions++; last SWITCH; };
+      $arg =~ /^-e(.+)/ and do { push @actions, [\&DelMsgHeaderRNot, 'I', $1]; $dactions++; last SWITCH; };
       $arg =~ /^-b(.+)/ and do { push @actions, [\&DelMsgBodyR, 'I', $1]; $dactions++; last SWITCH; };
       $arg =~ /^-H(.+)/ and do { push @actions, [\&DelMsgHeaderR, 'C', $1]; $dactions++; last SWITCH; };
+      $arg =~ /^-E(.+)/ and do { push @actions, [\&DelMsgHeaderRNot, 'C', $1]; $dactions++; last SWITCH; };
       $arg =~ /^-B(.+)/ and do { push @actions, [\&DelMsgBodyR, 'C', $1]; $dactions++; last SWITCH; };
       $arg =~ /^-t(.+)/ and do { push @actions, [\&FlagRemote, $1]; last SWITCH; };
       $arg eq '-D' and do { push @actions, [\&DelAll]; $dactions++; last SWITCH; };
@@ -626,6 +628,74 @@ sub DelMsgHeaderR {
             $dactions--;
         }
     }
+}
+
+sub DelMsgHeaderRNot {
+  my $case = shift;
+  my $re = shift;
+  my $dirno;
+  my $msgno;
+
+  print "Looking for messages with headers matching $re\n";
+
+  my ($ok) = 0;
+  for my $msg (keys %msglist)
+  {
+    open (MSG, "${queue}mess/$msg") or die("cannot open message $msg! Is qmail-send running?\n");
+    while (<MSG>)
+    {
+      if ($case eq 'C')
+      {
+        if ($_ =~ /$re/)
+        {
+          $ok = 1;
+          $dmes = 1;
+          ($dirno, $msgno) = split(/\//, $msg);
+          print "Message $msgno slotted for deletion.\n";
+          push @todel, $msg;
+          last;
+        }
+        elsif ( $_ eq "\n")
+        {
+          last;
+        }
+      }
+      else
+      {
+        if ($_ =~ /$re/i)
+        {
+          $ok = 1;
+          $dmes = 1;
+          ($dirno, $msgno) = split(/\//, $msg);
+          print "Message $msgno slotted for deletion.\n";
+          push @todel, $msg;
+          last;
+        }
+        elsif ( $_ eq "\n")
+        {
+          last;
+        }
+      }
+    }
+    close (MSG);
+
+  }
+  # If no messages are found, print a notice
+  if ($ok == 0)
+  {
+    print "No messages with headers matching $re found in the queue!\n";
+  } 
+  if ($dmes == 1)
+  {
+    if ($dactions == 1)
+    {
+      TrashMsgs();
+    }
+    else
+    {
+      $dactions--;
+    }
+  }
 }
 
 sub DelMsgBodyR {

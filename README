@@ -3,6 +3,9 @@
 
 Copyright 1998-2003 Michele Beltrame
 Modified by Chan Chung Hang Christopher (June, 2007)
+cburyta: Altered the script to include logic that is the reverse of the regex statments.
+         e.g. delete messages where headers do not match /(^From:)?somedomain\.com$/
+
 
 INTRO
 -----
@@ -78,8 +81,10 @@ Available parameters are:
   -f're'   : delete message from senders matching regular expression re
   -Stext : delete all messages that have/contain text as Subject
   -h're'   : delete all messages with headers matching regular expression re (case insensitive)
+  -e're'   : delete all messages with headers NOT matching regular expression re (case insensitive)
   -b're'   : delete all messages with body matching regular expression re (case insensitive)
   -H're'   : delete all messages with headers matching regular expression re (case sensitive)
+  -E're'   : delete all messages with headers NOT matching regular expression re (case sensitive)
   -B're'   : delete all messages with body matching regular expression re (case sensitive)
   -t're'   : flag messages with recipients in regular expression 're' for earlier retry (note: this lengthens the time message can stay in queue)
   -D     : delete all messages in the queue (local & remote)

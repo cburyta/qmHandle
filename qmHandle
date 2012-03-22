@@ -646,7 +646,10 @@ sub DelMsgHeaderRNot {
     {
       if ($case eq 'C')
       {
-        if ($_ =~ /$re/)
+        #
+        # not match regex string
+        #
+        if ($_ !~ /$re/)
         {
           $ok = 1;
           $dmes = 1;
@@ -662,7 +665,10 @@ sub DelMsgHeaderRNot {
       }
       else
       {
-        if ($_ =~ /$re/i)
+        #
+        # not match regex string
+        #
+        if ($_ !~ /$re/i)
         {
           $ok = 1;
           $dmes = 1;
